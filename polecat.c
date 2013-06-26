@@ -96,43 +96,16 @@ zmq_eof(zmq_pollitem_t *poll)
 }
 
 int
-main(int argc, char *argv[])
+poll_loop(zmq_pollitem_t* polls)
 {
+	int check;
 	struct fifo *up_fifo;
 	struct fifo *dn_fifo;
-	void *context;
-	void *up_socket;
-	void *dn_socket;
-	int up_done = 0;
-	int dn_done = 0;
-	int check;
-
-	zmq_pollitem_t polls[4] = {
-		{NULL, 0, ZMQ_POLLIN, 0},
-		{NULL, 1, 0, 0},
-		{NULL, 0, 0, 0},
-		{NULL, 0, ZMQ_POLLIN, 0}
-	};
 
 	up_fifo = fifo_init(1024);
 	dn_fifo = fifo_init(1024);
 
-	context = zmq_init(1);
-	up_socket = zmq_socket(context, ZMQ_PUSH);
-	dn_socket = zmq_socket(context, ZMQ_PULL);
-
-	polls[2].socket = up_socket;
-	polls[3].socket = dn_socket;
-
-	if(argc < 3)
-	{
-		exit(EXIT_FAILURE);
-	}
-
-	check = zmq_connect(up_socket, argv[1]);
-	check = zmq_bind(dn_socket, argv[2]);
-
-	while(!up_done || !dn_done)
+	while(polls[0].events || polls[1].events || polls[2].events || polls[3].events)
 	{
 		check = zmq_poll(polls, 4, -1);
 
@@ -141,8 +114,7 @@ main(int argc, char *argv[])
 			check = produce(&polls[0], up_fifo);
 			if(check == 0)
 			{
-				up_done = 1;
-				zmq_eof(&polls[2]);
+				polls[0].events = 0;
 			}
 		}
 
@@ -151,7 +123,7 @@ main(int argc, char *argv[])
 			check = produce(&polls[3], dn_fifo);
 			if(check == 0)
 			{
-				dn_done = 1;
+				polls[3].events = 0;
 			}
 		}
 
@@ -167,14 +139,55 @@ main(int argc, char *argv[])
 
 		polls[1].events = is_empty(dn_fifo) ? 0 : ZMQ_POLLOUT;
 		polls[2].events = is_empty(up_fifo) ? 0 : ZMQ_POLLOUT;
-	}
 
-	check = zmq_close(dn_socket);
-	check = zmq_close(up_socket);
-	check = zmq_term(context);
+		if(is_empty(up_fifo) && polls[0].events == 0)
+		{
+			zmq_eof(&polls[2]);
+		}
+	}
 
 	fifo_destroy(dn_fifo);
 	fifo_destroy(up_fifo);
 
+	return 0;
+}
+
+int
+main(int argc, char *argv[])
+{
+	void *context;
+	void *up_socket;
+	void *dn_socket;
+
+	zmq_pollitem_t polls[4] = {
+		{NULL, 0, ZMQ_POLLIN, 0},
+		{NULL, 1, 0, 0},
+		{NULL, 0, 0, 0},
+		{NULL, 0, ZMQ_POLLIN, 0}
+	};
+
+	context = zmq_init(1);
+	up_socket = zmq_socket(context, ZMQ_PUSH);
+	dn_socket = zmq_socket(context, ZMQ_PULL);
+
+	polls[2].socket = up_socket;
+	polls[3].socket = dn_socket;
+
+	if(argc < 3)
+	{
+		zmq_close(dn_socket);
+		zmq_close(up_socket);
+		zmq_term(context);
+		exit(EXIT_FAILURE);
+	}
+
+	zmq_connect(up_socket, argv[1]);
+	zmq_bind(dn_socket, argv[2]);
+
+	poll_loop(polls);
+
+	zmq_close(dn_socket);
+	zmq_close(up_socket);
+	zmq_term(context);
 	exit(EXIT_SUCCESS);
 }
