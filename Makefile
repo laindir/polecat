@@ -1,15 +1,13 @@
-CFLAGS=-Wall -Wextra -pedantic -pg -g -std=c89
+CFLAGS=-Wall -Wextra -g
 LDLIBS=-lzmq
 
 all: polecat
 
-foo: coroutine.o
-
-polecat: fifo.o
+polecat: fifo.o cleanup.o
 
 fifo.o: fifo.h
 
-coroutine.o: coroutine.h
+cleanup.o: cleanup.h
 
 clean: rm -f *.o
 

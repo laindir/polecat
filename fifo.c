@@ -61,5 +61,5 @@ space_filled(struct fifo *fifo)
 	int startindex = consume_index(fifo);
 	int endindex = produce_index(fifo);
 
-	return startindex < endindex ? endindex - startindex : fifo->size - startindex;
+	return startindex <= endindex ? endindex - startindex : fifo->size - startindex;
 }
