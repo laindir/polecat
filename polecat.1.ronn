@@ -6,7 +6,7 @@
 
 ##DESCRIPTION
 
-Connect stdin to a 0MQ socket of type _type_ at _upaddr_ and connect stdout to the 0MQ socket at _dnaddr_
+Connect stdin to a 0MQ socket at _upaddr_ and connect stdout to a 0MQ socket at _dnaddr_
 
 ##OPTIONS
 
