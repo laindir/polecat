@@ -14,15 +14,7 @@ Connect stdin to a 0MQ socket at _upaddr_ and connect stdout to a 0MQ socket at 
 Bind instead of connecting.
 
 * `-t` _type_:
-Use a socket of type _type_ instead of the default. The default is PUB for up, PULL for down. Valid types are:
-	*PUB
-	*PUSH
-	*REQ
-for up, and :
-	*SUB
-	*PULL
-	*REP
-for down.
+Use a socket of type _type_ instead of the default. The default is PUB for up, PULL for down. Valid types are: PUB, PUSH, REQ, for up, and: SUB, PULL, REP for down.
 
 * `-i` _id_:
 Specify the identity of the socket.
