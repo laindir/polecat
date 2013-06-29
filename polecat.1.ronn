@@ -1,0 +1,54 @@
+#polecat - netcat for 0MQ
+
+##SYNOPSIS
+
+`polecat` [`-b`] [`-t` _type_] [`-i` _id_] `-u` _upaddr_ [`-b`] [`-t` _type_] [`-i` _id_] `-d` _dnaddr_
+
+##DESCRIPTION
+
+Connect stdin to a 0MQ socket of type _type_ at _upaddr_ and connect stdout to the 0MQ socket at _dnaddr_
+
+##OPTIONS
+
+* `-b`:
+Bind instead of connecting.
+
+* `-t` _type_:
+Use a socket of type _type_ instead of the default. The default is PUB for up, PULL for down. Valid types are:
+	*PUB
+	*PUSH
+	*REQ
+for up, and :
+	*SUB
+	*PULL
+	*REP
+for down.
+
+* `-i` _id_:
+Specify the identity of the socket.
+
+* `-u` _upaddr_:
+Specify the 0MQ address on which to send.
+
+* `-d` _dnaddr_:
+Specify the 0MQ address on which to receive.
+
+##AUTHOR
+
+Written by Carl D Hamann (laindir).
+
+##BUGS
+
+Doesn't use all available buffer space.
+
+Writing before reading would probably be more efficient.
+
+Skips messages larger than remaining buffer space.
+
+##COPYRIGHT
+
+Copyright 2013 Carl D Hamann
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.  This file is offered as-is,
+without any warranty.
