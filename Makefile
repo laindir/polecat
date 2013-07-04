@@ -16,6 +16,7 @@ cleanup.o: cleanup.h
 %.html: %.ronn
 	ronn --html $(RONNFLAGS) $<
 
-clean: rm -f *.o polecat
+clean:
+	rm -f *.o polecat
 
 .PHONY: all clean
